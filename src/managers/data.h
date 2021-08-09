@@ -32,7 +32,7 @@ typedef struct Data
 {
   char *name;
   int num_sheep;
-  Sheep sheep[MAX_SHEEP];
+  Sheep sheep[10];
 } Data;
 
 void data_manager_init(ecs_world_t *world);

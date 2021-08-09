@@ -107,11 +107,24 @@ void game_manager_init(void)
 
 //------------------------------------------------------------------------------
 
+static inline int _collatz(int num)
+{
+  int count = 0;
+  for (; num != 1; ++count)
+    num = (num % 2 == 0) ? num / 2 : 3 * num + 1;
+  return count;
+}
+
+//------------------------------------------------------------------------------
+
 void game_manager_loop(void)
 {
   bool running = true;
   RenderTexture2D *playfield = texture_manager_playfield();
   Rectangle src = {0.0f, 0.0f, (float)RASTER_WIDTH, (float)-RASTER_HEIGHT};
+
+  for (int i = 1; i < 10; ++i)
+    fprintf(stdout, "%d: %d\n", i, _collatz(i));
 
   entity_manager_spawn_scene(SCENE_SPLASH);
 

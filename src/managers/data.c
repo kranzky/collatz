@@ -55,7 +55,7 @@ void _load_data(DataName id, const char *filename)
     Color tint = GetColor((unsigned int)value->valuedouble);
     value = cJSON_GetObjectItemCaseSensitive(item, "size");
     float size = value->valuedouble;
-    if (b < MAX_SHEEP)
+    if (b < 10)
     {
       _data[id].sheep[b] = (Sheep){.position = position, .tint = tint, .size = size};
       ++b;
