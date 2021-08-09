@@ -1,0 +1,11 @@
+#!/bin/bash
+
+cd "`dirname "$0"`"
+
+ARCH=`uname -m`
+
+if [ "$ARCH" == "x86_64" ]; then
+    ./starterkitx64 $@
+else
+    ./starterkit32 $@
+fi
