@@ -2,11 +2,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "debug starterkit",
+      "name": "debug collatz",
       "type": "lldb",
       "request": "launch",
       "preLaunchTask": "${defaultBuildTask}",
-      "program": "${workspaceFolder}/bin/starterkit"
+      "program": "${workspaceFolder}/bin/collatz"
     }
   ]
 }

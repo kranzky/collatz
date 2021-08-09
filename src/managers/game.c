@@ -63,7 +63,7 @@ static inline void _init_raylib()
   SetConfigFlags(flags);
   SetTargetFPS(60);
 
-  InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "StarterKit");
+  InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Collatz");
   InitAudioDevice();
 }
 

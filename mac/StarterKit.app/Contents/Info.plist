@@ -3,13 +3,13 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDisplayName</key>
-	<string>StarterKit</string>
+	<string>Collatz</string>
 	<key>CFBundleName</key>
-	<string>StarterKit</string>
+	<string>Collatz</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.kranzky.starterkit</string>
+	<string>com.kranzky.collatz</string>
 	<key>CFBundleIconFile</key>
-	<string>starterkit.icns</string>
+	<string>collatz.icns</string>
 	<key>CFBundleExecutable</key>
 	<string>launch</string>
 </dict>

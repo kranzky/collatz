@@ -3,7 +3,7 @@
 .PHONY: clean 
 .PHONY: butler 
 
-TARGET = starterkit
+TARGET = collatz
 RELEASE = alpha
 
 RESDIR = res
@@ -41,7 +41,7 @@ ifeq ($(ARCH),MAC)
   LFLAGS += -framework CoreVideo -framework IOKit -framework Cocoa
   LFLAGS += -framework GLUT -framework OpenGL
   ifeq ($(BUILD),RELEASE)
-    BINDIR = mac/StarterKit.app/Contents/MacOS
+    BINDIR = mac/Collatz.app/Contents/MacOS
     RESDIR = $(BINDIR)/res
   endif
 endif
@@ -49,7 +49,7 @@ ifeq ($(ARCH),WIN)
   ITCHARCH = win
   CFLAGS += -DWINDOWS
   LFLAGS += -static -lopengl32 -lgdi32
-  TARGET = starterkit.exe
+  TARGET = collatz.exe
   ifeq ($(BUILD),RELEASE)
     BINDIR = win
     RESDIR = $(BINDIR)/res
@@ -63,9 +63,9 @@ ifeq ($(ARCH),LINUX)
     BINDIR = linux
     RESDIR = $(BINDIR)/res
     TEST = $(shell uname -m)
-    TARGET = starterkit32
+    TARGET = collatz32
     ifeq ($(TEST),x86_64)
-      TARGET = starterkitx64
+      TARGET = collatzx64
     endif
   endif
 endif
@@ -90,8 +90,8 @@ ifeq ($(BUILD),RELEASE)
 	@echo $(TAG)-$(RELEASE)+$(HASH) > $(RESDIR)/VERSION
   ifeq ($(ARCH),MAC)
 		chflags hidden $(RESDIR)
-		lsregister -f mac/StarterKit.app
-		otool -l mac/StarterKit.app/Contents/MacOS/starterkit
+		lsregister -f mac/Collatz.app
+		otool -l mac/Collatz.app/Contents/MacOS/collatz
   endif
   ifeq ($(ARCH),WIN)
 		attrib +s +h $(RESDIR)
