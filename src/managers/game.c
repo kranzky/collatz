@@ -18,10 +18,13 @@
 //==============================================================================
 
 static ecs_world_t *_world = NULL;
+static int _primes[100000] = {0};
+static int _num = 0;
 
 //==============================================================================
 
-static void _fini(ecs_world_t *world, void *context)
+static void
+_fini(ecs_world_t *world, void *context)
 {
   if (IsAudioDeviceReady())
   {
@@ -117,24 +120,64 @@ static inline int _collatz(int num)
 
 //------------------------------------------------------------------------------
 
+static int _factors(int num)
+{
+  int factors = 0;
+  for (int i = 0; i < _num; ++i)
+  {
+    if (SQR(_primes[i]) > num)
+      break;
+    if (num % _primes[i] == 0)
+      ++factors;
+  }
+  if (factors == 0 && num > 1)
+  {
+    if (_num < 100000)
+      _primes[_num++] = num;
+    else
+      factors = 999;
+  }
+  return factors;
+}
+
+//------------------------------------------------------------------------------
+
+static inline Color _process(int num)
+{
+  return WHITE;
+  switch (_factors(num))
+  {
+  case 0:
+    return (Color){255, 255, 255, 255};
+  case 999:
+    return RED;
+  default:
+    return (Color){0};
+  }
+}
+
+//------------------------------------------------------------------------------
+
 void game_manager_loop(void)
 {
   bool running = true;
   RenderTexture2D *playfield = texture_manager_playfield();
-  Rectangle src = {0.0f, 0.0f, (float)RASTER_WIDTH, (float)-RASTER_HEIGHT};
+  Rectangle src = {0.0f, 0.0f, (float)RASTER_WIDTH, (float)RASTER_HEIGHT};
 
-  for (int i = 1; i < 10; ++i)
-    fprintf(stdout, "%d: %d\n", i, _collatz(i));
+  float angle = 0;
+  float length = STEP;
+  int num = 1;
 
-  entity_manager_spawn_scene(SCENE_SPLASH);
+  // entity_manager_spawn_scene(SCENE_SPLASH);
+
+  BeginTextureMode(*playfield);
+  ClearBackground(BLACK);
+  EndTextureMode();
 
   while (running)
   {
-    BeginTextureMode(*playfield);
-    ClearBackground(BLACK);
-    EndTextureMode();
-
-    running = ecs_progress(_world, GetFrameTime()) && !WindowShouldClose();
+    //  running = ecs_progress(_world, GetFrameTime()) && !WindowShouldClose();
+    running = !WindowShouldClose();
 
     int window_width = GetScreenWidth();
     int window_height = GetScreenHeight();
@@ -150,6 +193,29 @@ void game_manager_loop(void)
         (window_height - ((float)RASTER_HEIGHT * scale)) * 0.5f,
         (float)RASTER_WIDTH * scale,
         (float)RASTER_HEIGHT * scale};
+
+    BeginTextureMode(*playfield);
+
+    for (int i = 0; i < 1000; ++i)
+    {
+      float delta = angle * 0.002777777777777778; // how far around circle
+      float current = length + STEP * delta;      // length to draw this frame
+      float angle_delta = 2 * asinf(STEP / current) * RAD2DEG;
+      Vector2 position = Vector2Rotate((Vector2){current, 0}, angle);
+      position = Vector2Add(position, (Vector2){RASTER_WIDTH * 0.5, RASTER_HEIGHT * 0.5});
+      Color colour = _process(num);
+      if (colour.a > 0)
+        DrawPixelV(position, colour);
+      num += 1;
+      angle += angle_delta;
+      while (angle > 360)
+      {
+        angle -= 360;
+        length += STEP;
+      }
+    }
+
+    EndTextureMode();
 
     BeginDrawing();
     ClearBackground(BLACK);
