@@ -128,6 +128,8 @@ static inline int _collatz(unsigned int num)
 
 static inline int _factors(int num)
 {
+  if (num == 0)
+    return 999;
   int factors = 0;
   for (int i = 0; i < _num; ++i)
   {
@@ -152,10 +154,24 @@ static inline int _factors(int num)
 
 //------------------------------------------------------------------------------
 
+static inline int _perfect(int num)
+{
+  for (int i = 0; i < 100000; ++i)
+  {
+    int sqr = SQR(i);
+    if (sqr > num)
+      return 1;
+    if (sqr == num)
+      return 0;
+  }
+}
+
+//------------------------------------------------------------------------------
+
 static inline Color _process(unsigned int num)
 {
-  int count = _collatz(num);
-  int alpha = Clamp(16 * count, 0, 255);
+  int count = _factors(num);
+  int alpha = Clamp(256 / (count + 1), 0, 255);
   return (Color){255, 255, 255, alpha};
 }
 
@@ -167,12 +183,11 @@ void game_manager_loop(void)
   RenderTexture2D *playfield = texture_manager_playfield();
   Rectangle src = {0.0f, 0.0f, (float)RASTER_WIDTH, (float)RASTER_HEIGHT};
 
-  unsigned int num = 1;
-  int dir = 0;
-  int steps = 0;
-  int count = 0;
-  int max_steps = 1;
-  Vector2 position = {RASTER_WIDTH * 0.5, RASTER_HEIGHT * 0.5};
+  unsigned int num = 0;
+  unsigned int square = 1;
+  int step = 0;
+  int steps = 1;
+  int length = 0;
 
   BeginTextureMode(*playfield);
   ClearBackground(BLACK);
@@ -201,40 +216,24 @@ void game_manager_loop(void)
 
     for (int i = 0; i < 1000; ++i)
     {
+      float delta = (float)step / (float)steps;
+      float angle = 360 - 360 * delta;
+      float current = length + STEP * delta;
+      Vector2 position = Vector2Rotate((Vector2){current, 0}, angle);
+      position.y *= -1;
+      position = Vector2Add(position, (Vector2){RASTER_WIDTH * 0.5, RASTER_HEIGHT * 0.5});
       Color colour = _process(num);
       if (colour.a > 0)
         DrawPixelV(position, colour);
-      switch (dir)
+      num += 1;
+      step += 1;
+      if (num == square)
       {
-      case 0: // right
-        position.x += 1;
-        break;
-      case 1: // up
-        position.y -= 1;
-        break;
-      case 2: // left
-        position.x -= 1;
-        break;
-      case 3: // down
-        position.y += 1;
-        break;
-      default:
-        break;
+        length += STEP;
+        steps += 2;
+        square += steps;
+        step = 0;
       }
-      steps += 1;
-      if (steps > max_steps)
-      {
-        steps = 0;
-        count += 1;
-        if (count == 2)
-        {
-          max_steps += 1;
-          count = 0;
-        }
-        dir += 1;
-        dir %= 4;
-      }
-      num += 2;
     }
 
     EndTextureMode();
