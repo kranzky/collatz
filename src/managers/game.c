@@ -120,7 +120,7 @@ static inline int _collatz(int num)
 
 //------------------------------------------------------------------------------
 
-static int _factors(int num)
+static inline int _factors(int num)
 {
   int factors = 0;
   for (int i = 0; i < _num; ++i)
@@ -133,7 +133,11 @@ static int _factors(int num)
   if (factors == 0 && num > 1)
   {
     if (_num < 100000)
-      _primes[_num++] = num;
+    {
+      _primes[_num] = num;
+      ++_num;
+      return 0;
+    }
     else
       factors = 999;
   }
@@ -144,16 +148,8 @@ static int _factors(int num)
 
 static inline Color _process(int num)
 {
-  return WHITE;
-  switch (_factors(num))
-  {
-  case 0:
-    return (Color){255, 255, 255, 255};
-  case 999:
-    return RED;
-  default:
-    return (Color){0};
-  }
+  int factors = _factors(num);
+  return (factors == 0) ? WHITE : (Color){0};
 }
 
 //------------------------------------------------------------------------------
@@ -164,11 +160,12 @@ void game_manager_loop(void)
   RenderTexture2D *playfield = texture_manager_playfield();
   Rectangle src = {0.0f, 0.0f, (float)RASTER_WIDTH, (float)RASTER_HEIGHT};
 
-  float angle = 0;
-  float length = STEP;
   int num = 1;
-
-  // entity_manager_spawn_scene(SCENE_SPLASH);
+  int dir = 0;
+  int steps = 0;
+  int count = 0;
+  int max_steps = 1;
+  Vector2 position = {RASTER_WIDTH * 0.5, RASTER_HEIGHT * 0.5};
 
   BeginTextureMode(*playfield);
   ClearBackground(BLACK);
@@ -176,7 +173,6 @@ void game_manager_loop(void)
 
   while (running)
   {
-    //  running = ecs_progress(_world, GetFrameTime()) && !WindowShouldClose();
     running = !WindowShouldClose();
 
     int window_width = GetScreenWidth();
@@ -198,21 +194,43 @@ void game_manager_loop(void)
 
     for (int i = 0; i < 1000; ++i)
     {
-      float delta = angle * 0.002777777777777778; // how far around circle
-      float current = length + STEP * delta;      // length to draw this frame
-      float angle_delta = 2 * asinf(STEP / current) * RAD2DEG;
-      Vector2 position = Vector2Rotate((Vector2){current, 0}, angle);
-      position = Vector2Add(position, (Vector2){RASTER_WIDTH * 0.5, RASTER_HEIGHT * 0.5});
       Color colour = _process(num);
       if (colour.a > 0)
-        DrawPixelV(position, colour);
-      num += 1;
-      angle += angle_delta;
-      while (angle > 360)
       {
-        angle -= 360;
-        length += STEP;
+        TraceLog(LOG_TRACE, "%f %f", position.x, position.y);
+        DrawPixelV(position, colour);
       }
+      switch (dir)
+      {
+      case 0: // right
+        position.x += 1;
+        break;
+      case 1: // up
+        position.y -= 1;
+        break;
+      case 2: // left
+        position.x -= 1;
+        break;
+      case 3: // down
+        position.y += 1;
+        break;
+      default:
+        break;
+      }
+      steps += 1;
+      if (steps > max_steps)
+      {
+        steps = 0;
+        count += 1;
+        if (count == 2)
+        {
+          max_steps += 1;
+          count = 0;
+        }
+        dir += 1;
+        dir %= 4;
+      }
+      num += 1;
     }
 
     EndTextureMode();
