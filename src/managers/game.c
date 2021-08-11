@@ -170,8 +170,8 @@ static inline int _perfect(int num)
 
 static inline Color _process(unsigned int num)
 {
-  int count = _factors(num);
-  int alpha = Clamp(256 / (count + 1), 0, 255);
+  int count = _collatz(num);
+  int alpha = Clamp(16 * count, 0, 255);
   return (Color){255, 255, 255, alpha};
 }
 
@@ -227,7 +227,7 @@ void game_manager_loop(void)
         DrawPixelV(position, colour);
       num += 1;
       step += 1;
-      if (num == square)
+      if (step == steps)
       {
         length += STEP;
         steps += 2;
