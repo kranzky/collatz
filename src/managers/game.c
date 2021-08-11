@@ -121,7 +121,6 @@ static inline int _collatz(unsigned int num)
     num = (num % 2 == 0) ? (num / 2) : ((3 * num + 1) / 2);
   }
 
-  //TraceLog(LOG_TRACE, "%d %d %d", max, num, count);
   return count;
 }
 
@@ -156,7 +155,7 @@ static inline int _factors(int num)
 static inline Color _process(unsigned int num)
 {
   int count = _collatz(num);
-  int alpha = Clamp(count * 16, 0, 255);
+  int alpha = Clamp(16 * count, 0, 255);
   return (Color){255, 255, 255, alpha};
 }
 
@@ -179,7 +178,7 @@ void game_manager_loop(void)
   ClearBackground(BLACK);
   EndTextureMode();
 
-  while (running)
+  while (running && num < 33554432)
   {
     running = !WindowShouldClose();
 
@@ -235,7 +234,7 @@ void game_manager_loop(void)
         dir += 1;
         dir %= 4;
       }
-      num += 1;
+      num += 2;
     }
 
     EndTextureMode();
